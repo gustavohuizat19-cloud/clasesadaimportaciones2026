@@ -259,7 +259,7 @@
                             <div class="relative"><i data-lucide="package" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i><input type="number" id="input-cantidad" value="1" min="1" oninput="updateCalculator()" class="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-10 pr-4 focus:border-red-500 text-xl font-black text-white outline-none"></div>
                         </div>
                         <div class="space-y-2">
-                            <label class="text-[9px] font-black uppercase tracking-widest px-2 text-slate-500 italic">Peso Unitario (KG)</label>
+                            <label class="text-[9px] font-black uppercase tracking-widest px-2 text-slate-500 italic">Peso Total (KG)</label>
                             <div class="relative"><input type="number" id="input-peso" value="1" oninput="updateCalculator()" class="w-full bg-white/5 border border-white/10 rounded-xl py-4 px-4 focus:border-red-500 text-xl font-black text-white outline-none"><span class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 font-black italic text-xs">KG</span></div>
                         </div>
                     </div>
@@ -350,13 +350,18 @@
         function updateCalculator() {
             const unitCost = parseFloat(document.getElementById('input-costo').value) || 0;
             const quantity = parseFloat(document.getElementById('input-cantidad').value) || 1;
-            const unitWeight = parseFloat(document.getElementById('input-peso').value) || 0;
+            const enteredWeight = parseFloat(document.getElementById('input-peso').value) || 0; // Se toma como peso TOTAL del envío
             const tc = parseFloat(document.getElementById('input-tc').value) || 0;
             const pctImp = parseFloat(document.getElementById('input-impuesto').value) || 0;
 
+            // Cantidad multiplica el precio del producto
             const totalProductCost = unitCost * quantity;
-            const totalWeight = unitWeight * quantity;
+            
+            // Peso ingresado multiplica la tarifa de $5.95
+            const totalWeight = enteredWeight;
             const shippingCost = totalWeight * rateKG;
+            
+            // Cálculo de impuestos (si supera los $200 de valor FOB total)
             const taxes = totalProductCost > 200 ? totalProductCost * (pctImp / 100) : 0;
             const totalUSD = totalProductCost + shippingCost + rateDesaduanaje + taxes;
             const totalPEN = totalUSD * tc;
