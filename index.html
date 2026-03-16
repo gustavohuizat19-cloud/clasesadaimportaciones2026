@@ -43,7 +43,7 @@
                     <i data-lucide="message-circle" class="w-4 h-4"></i> CONTACTAR
                 </a>
                 <div class="flex items-center gap-3 bg-white/5 px-4 py-3 rounded-xl backdrop-blur-md border border-white/10 shadow-sm w-full sm:w-auto justify-center">
-                    <img src="imagen.jpeg" alt="Instructora Adameli Huiza Blas" class="w-10 h-10 rounded-full object-cover shrink-0 shadow-lg border-2 border-white/10">
+                    <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=200&h=200&auto=format&fit=crop" alt="Instructora Adameli Huiza Blas" class="w-10 h-10 rounded-full object-cover shrink-0 shadow-lg border-2 border-white/10">
                     <div class="text-left">
                         <span class="block font-black text-[9px] uppercase tracking-tighter text-slate-300">Instructora</span>
                         <span class="font-bold text-xs text-white italic whitespace-nowrap">Adameli Huiza Blas</span>
@@ -318,8 +318,7 @@
             <div class="text-center md:text-left">
                 <div class="flex flex-col sm:flex-row items-center gap-4 mb-4 justify-center md:justify-start">
                     <div class="shrink-0 bg-white p-2 rounded-lg shadow-xl border border-white/10">
-                        <img src="logo.png" class="w-24 md:w-28 object-contain" alt="Logo Ada Importaciones" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                        <span class="hidden text-blue-900 font-black text-sm italic uppercase">ADA IMPORT</span>
+                        <span class="text-blue-900 font-black text-sm italic uppercase">ADA IMPORT</span>
                     </div>
                     <div>
                         <h3 class="font-black text-xl md:text-2xl uppercase tracking-tighter italic text-white leading-tight">Guía Logística 2026</h3>
@@ -350,20 +349,24 @@
         function updateCalculator() {
             const unitCost = parseFloat(document.getElementById('input-costo').value) || 0;
             const quantity = parseFloat(document.getElementById('input-cantidad').value) || 1;
-            const enteredWeight = parseFloat(document.getElementById('input-peso').value) || 0; // Se toma como peso TOTAL del envío
+            const enteredWeight = parseFloat(document.getElementById('input-peso').value) || 0; 
             const tc = parseFloat(document.getElementById('input-tc').value) || 0;
             const pctImp = parseFloat(document.getElementById('input-impuesto').value) || 0;
 
-            // Cantidad multiplica el precio del producto
+            // Cantidad multiplica el precio del producto (Valor FOB)
             const totalProductCost = unitCost * quantity;
             
             // Peso ingresado multiplica la tarifa de $5.95
             const totalWeight = enteredWeight;
             const shippingCost = totalWeight * rateKG;
             
-            // Cálculo de impuestos (si supera los $200 de valor FOB total)
-            const taxes = totalProductCost > 200 ? totalProductCost * (pctImp / 100) : 0;
-            const totalUSD = totalProductCost + shippingCost + rateDesaduanaje + taxes;
+            // CORRECCIÓN SOLICITADA:
+            // El impuesto se calcula sobre el total (Valor FOB + Envío + Desaduanaje)
+            // Solo si el Valor FOB total supera los $200.
+            const baseImponible = totalProductCost + shippingCost + rateDesaduanaje;
+            const taxes = totalProductCost > 200 ? baseImponible * (pctImp / 100) : 0;
+            
+            const totalUSD = baseImponible + taxes;
             const totalPEN = totalUSD * tc;
 
             document.getElementById('res-costo').innerText = `$${totalProductCost.toFixed(2)}`;
@@ -389,7 +392,7 @@
 
             if (totalProductCost > 200) {
                 alertBox.className = "p-6 bg-orange-500 text-orange-950 rounded-2xl flex flex-col sm:flex-row gap-4 font-black text-xs shadow-xl border-l-8 border-orange-700 italic animate-pulse";
-                alertText.innerText = `ALERTA: Al superar los $200 de valor FOB total, se aplican impuestos. Se incluyó un ${pctImp}% en el cálculo.`;
+                alertText.innerText = `ALERTA: Al superar los $200 de valor FOB total ($${totalProductCost.toFixed(2)}), se aplica el ${pctImp}% de impuestos sobre el costo total (CIF).`;
                 alertContainer.innerHTML = '<i data-lucide="alert-triangle" class="w-8 h-8"></i>';
             } else {
                 alertBox.className = "p-6 bg-green-500 text-green-950 rounded-2xl flex flex-col sm:flex-row gap-4 font-black text-xs shadow-xl border-l-8 border-green-700 italic";
